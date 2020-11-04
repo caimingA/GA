@@ -45,12 +45,3 @@ class Human:
 
     def set_finish(self, finish):
         self.finish = finish
-
-
-class Road:
-    def __init__(self, begin, end, width, length):
-        self.begin = begin
-        self.end = end
-        self.width = width
-        self.length = length
-
