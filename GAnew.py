@@ -10,13 +10,13 @@ from mpl_toolkits.mplot3d import Axes3D
 
 random.seed(10)
 G = nx.Graph()
-adjTable = dict()
-# allPaths = list()
-# shortPaths = list()
-num = 0
-total = 0
+adjTable = dict() # 由文件生成的邻接表
+
+# 所有避难所的节点序号
 shelterList = ["28", "38", "85", "103", "104", "109", "112", "124", "170", "178", "189", "194", "203", "220", "274"]
 
+
+# 用network创造拓扑图
 def creat_graph():
     for key, values in adjTable.items():
         # print(key)
@@ -27,6 +27,7 @@ def creat_graph():
     return True
 
 
+# 读取txt文件
 def read_txt():
     adjTable = dict()
     f = open("routeKyoto.txt", mode='r', encoding="utf-8", )
@@ -47,6 +48,7 @@ def read_txt():
     return adjTable
 
 
+# 随机数生成函数
 def creat_random(N):
     x0 = A = 48271
     B = 0
@@ -57,6 +59,7 @@ def creat_random(N):
     return result
 
 
+# 判断节点序列是否为通路
 def is_path(path):
     if len(path) == 1:
         return False
@@ -74,6 +77,7 @@ def is_path(path):
     return True
 
 
+# 判断节点序列是否有环路
 def is_loop(path):
     # print(path)
     counter = dict(Counter(path))
@@ -96,6 +100,7 @@ def is_loop(path):
 
     return path
 
+# 判断节点序列是否已经存在
 def is_exist(paths, path):
     if path in paths:
         return True
@@ -109,7 +114,8 @@ def findPath(graph, start, end, path=[]):
     
     return shortest_way
 
-
+# 找到所有从start到end的路径
+# return 所有路径，路径长度，最短路径的节点数量，所有最短路径
 def find_all_path(start, end, path=[]):
     num = 0
     shortest_way = nx.shortest_path(G, start, end)
@@ -118,14 +124,12 @@ def find_all_path(start, end, path=[]):
     # print(length)
     path = list(nx.all_simple_paths(G, start, end, length))
     shortPath = list(nx.all_simple_paths(G, start, end, length - 4))
-    # paths = list()
-    # for p in path:
-    #     paths.append(p)
-    #     num += 1
     
     return path, len(path), length - 4, shortPath
 
 
+# 找到合适的避难所，k是要找的个数，start是起点
+# return 避难所的节点所构成的序列
 def find_shelter(k, start):
     lengthList = list()
     result = list()
@@ -133,7 +137,7 @@ def find_shelter(k, start):
     for end in shelterList:
         flag = 0
         wayLength = len(nx.shortest_path(G, start, end))
-        # print(end, ":", wayLength)
+
         if len(lengthList) < k:
             lengthList.append(wayLength)
             result.append(end)
@@ -148,7 +152,6 @@ def find_shelter(k, start):
                 lengthList[maxPoint] = wayLength
                 result[maxPoint] = end    
 
-    # print(shortestWayLength)
     return result
 
 
@@ -173,8 +176,9 @@ def mental_cost(paths):
     return mentalCost
 
 
+# 计算心理cost的序列
 def cost_list(paths):
-    n = 0
+    n = 0 # 节点数
     length = 0
     area = 0
     bridge = 0
@@ -189,12 +193,11 @@ def cost_list(paths):
                 if j[4] == 1:
                     bridge += j[2]
 
-    # print(length)
-    # print(n)
     cost_list = [length, area / length, bridge, build / n]
     return cost_list
 
 
+# 初始化
 def inition(size, allPaths, shortPaths):
     n = len(shortPaths)
     costs = list()
@@ -207,6 +210,7 @@ def inition(size, allPaths, shortPaths):
     return init
 
     
+# 轮盘赌
 def wheel_selection(population, costs):
     # print(population, '->', costs)
     length = len(population)
@@ -240,6 +244,7 @@ def wheel_selection(population, costs):
     return selectPaths, newCosts
 
 
+# 交叉
 def crossover(paths):
     newPaths = list()
     parents = random.sample(paths, 2)
@@ -260,6 +265,7 @@ def crossover(paths):
     return paths
 
 
+# 变异
 def mutation(paths, allPaths):
     path = random.sample(paths, 1)
     length = len(path[0])
@@ -277,12 +283,14 @@ def mutation(paths, allPaths):
     return paths
 
 
+# sharing的计算， 相似度
 def sharing(pathi, pathj):
     length = len(pathi)
     overlap = length - len(set(pathi + pathj))
     return overlap / length
 
 
+# 排序方法
 def pareto_ranking(paths):
     resultList = list()
     fit = list()
@@ -322,7 +330,8 @@ def pareto_ranking(paths):
     return resultPath, Fit
 
 
-def find_Road(start, end):
+# 寻找道路的函数
+def find_Road(start, end, gen):
     path = list()
     allPaths, num, length, shortPaths = find_all_path(start, end, path)
     # total = len(allPaths)
@@ -339,18 +348,10 @@ def find_Road(start, end):
     else:
         total = 80
         initPath = inition(100, allPaths, shortPaths)
-    # print(allPaths)
-    # allCosts = list()
-    # for i in allPaths:
-    #     allCosts.append(compute_cost(i))
-    # initPath = inition(int(total/2))
     # print(initPath)
 
     Paths, Costs = pareto_ranking(initPath)
-    # print(0)
     Paths, Costs = wheel_selection(Paths, Costs)
-
-    gen = 100
     result = list()
 
     for i in range(gen):
@@ -411,33 +412,26 @@ def find_Road(start, end):
         print(len(resultDict[resultKeys[0]][0]), "->", resultDict[resultKeys[0]])
         print(len(resultDict[resultKeys[1]][0]), "->", resultDict[resultKeys[1]])
         selectResult = resultDict[resultKeys[0]] + resultDict[resultKeys[1]]
-    # print(costs)
-    # print("max", maxPath)
-    # print(cost_list(maxPath))
-    # print("min", minPath)
-    # print(cost_list(minPath))
-    # print(result[-1])
-    # print(cost_list(result[-1][1]))
+
 
 if __name__ == "__main__":
     startTime = time.time()
     adjTable = read_txt()
     creat_graph()
     # print(adjTable)
-    k = 3
-    endList = find_shelter(k, "1")
+    k = 3 # 避难所的数量
+    gen = 100 # 世代
+    endList = find_shelter(k, "1") # 避难所对应的点的序号
     print("shelter points:", endList)
     for end in endList:
         print('--------------------------------------------')
-        find_Road("1", end)
-
-    # print(result)
-    # maxPath = allPaths[allCosts.index(max(costs))]
-    # minPath = allPaths[allCosts.index(min(costs))]
+        find_Road("1", end, gen)
     
     
     endTime = time.time()
     print("total time: ", (endTime-startTime))
+    
+    
     ## プロット
 
     # fig = plt.figure('result')
