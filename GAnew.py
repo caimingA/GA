@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 random.seed(10)
 G = nx.Graph()
 adjTable = dict() # 由文件生成的邻接表
-
+total = 0
 # 所有避难所的节点序号
 shelterList = ["28", "38", "85", "103", "104", "109", "112", "124", "170", "178", "189", "194", "203", "220", "274"]
 
