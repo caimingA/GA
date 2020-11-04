@@ -1,6 +1,6 @@
 class Human:
-    def __init__(self, name, speed, origin):
-        self.name = name
+    def __init__(self, id, speed, origin):
+        self.id = id
         self.speed = speed
         self.origin = origin
         self.isCompute = 1
