@@ -352,7 +352,7 @@ def find_Road(start, end, gen):
 
     Paths, Costs = pareto_ranking(initPath)
     Paths, Costs = wheel_selection(Paths, Costs)
-    result = list()
+    # result = list()
 
     for i in range(gen):
         while len(Paths) < total:
@@ -374,13 +374,13 @@ def find_Road(start, end, gen):
         Paths, Costs = pareto_ranking(Paths)
         Paths, Costs = wheel_selection(Paths, Costs)
         # print(Paths, Costs)
-        index = Costs.index(max(Costs))
+        # index = Costs.index(max(Costs))
         # print(index)
         # print(1)
         # resultPath, resultCost = pareto(Paths)
         # result.append([i, resultPath, resultCost])
-        result.append([i, Paths[index], cost_list(Paths[index])])
-        resultPaths = Paths
+        # result.append([i, Paths[index], cost_list(Paths[index])])
+        # resultPaths = Paths
         # Paths = list(set(Paths))
         # Paths.sort(key=Paths.index)
         # temp = list()
@@ -394,24 +394,50 @@ def find_Road(start, end, gen):
     print("number of nodes in shortest route:", length)
     print("number of all route:", num)
     print("**************results as follow**************")
-    print(len(resultPaths))
+    # print(len(resultPaths))
     # print(resultPaths)
-    resultDict = dict()
-    selectResult = list()
-    for i in resultPaths:
-        length = len(i)
-        if length in resultDict:
-            resultDict[length].append(i)
-        else:
-            resultDict[length] = [i]
-    resultKeys = sorted(resultDict.keys())
-    if len(resultKeys) == 1:
-        print(len(resultDict[resultKeys[0]][0]), "->", resultDict[resultKeys[0]])
-        selectResult = resultDict[resultKeys[0]]
-    else:
-        print(len(resultDict[resultKeys[0]][0]), "->", resultDict[resultKeys[0]])
-        print(len(resultDict[resultKeys[1]][0]), "->", resultDict[resultKeys[1]])
-        selectResult = resultDict[resultKeys[0]] + resultDict[resultKeys[1]]
+    
+    costF = cost_list(Paths[0])
+    minLength = costF[0]
+    maxWidth = costF[1]
+    minBridge = costF[2]
+    minBulid = costF[3]
+    resultList = [Paths[0], Paths[0], Paths[0], Paths[0]]
+    for i in range(len(Paths)):
+        cost = cost_list(Paths[i])
+        if cost[0] < minLength:
+            resultList[0] = Paths[i]
+            minLength = cost[0]
+        if cost[1] > maxWidth:
+            resultList[1] = Paths[i]
+            maxWidth = cost[1]
+        if cost[2] < minBridge:
+            resultList[2] = Paths[i]
+            minBridge = cost[2]
+        if cost[3] < minBulid:
+            resultList[3] = Paths[i]
+            minBulid = cost[3]
+    print("from length: " ,resultList[0])
+    print("from width: " ,resultList[1])
+    print("from bridge: " ,resultList[2])
+    print("from buile: ", resultList[3])
+    # print(resultPaths)
+    # resultDict = dict()
+    # selectResult = list()
+    # for i in resultPaths:
+    #     length = len(i)
+    #     if length in resultDict:
+    #         resultDict[length].append(i)
+    #     else:
+    #         resultDict[length] = [i]
+    # resultKeys = sorted(resultDict.keys())
+    # if len(resultKeys) == 1:
+    #     print(len(resultDict[resultKeys[0]][0]), "->", resultDict[resultKeys[0]])
+    #     selectResult = resultDict[resultKeys[0]]
+    # else:
+    #     print(len(resultDict[resultKeys[0]][0]), "->", resultDict[resultKeys[0]])
+    #     print(len(resultDict[resultKeys[1]][0]), "->", resultDict[resultKeys[1]])
+    #     selectResult = resultDict[resultKeys[0]] + resultDict[resultKeys[1]]
 
 
 if __name__ == "__main__":
@@ -419,7 +445,7 @@ if __name__ == "__main__":
     adjTable = read_txt()
     creat_graph()
     # print(adjTable)
-    k = 3 # 避难所的数量
+    k = 2 # 避难所的数量
     gen = 100 # 世代
     endList = find_shelter(k, "1") # 避难所对应的点的序号
     print("shelter points:", endList)
