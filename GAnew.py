@@ -35,14 +35,14 @@ def read_txt():
         line = line.replace("\n", "")
         line = line.split(sep=',')
         if line[0] in adjTable:
-            adjTable[line[0]].append([line[1], float(line[2]), float(line[3]), float(line[4]), float(line[5])])
+            adjTable[line[0]].append([line[1], float(line[2]), float(line[3]), float(line[4]), float(line[5]), 0.0])
         else:
-            adjTable[line[0]] = [[line[1], float(line[2]), float(line[3]), float(line[4]), float(line[5])]]  # node1, node2, cost
+            adjTable[line[0]] = [[line[1], float(line[2]), float(line[3]), float(line[4]), float(line[5]), 0.0]]  # node1, node2, cost
 
         if line[1] in adjTable:
-            adjTable[line[1]].append([line[0], float(line[2]), float(line[3]), float(line[4]), float(line[5])])
+            adjTable[line[1]].append([line[0], float(line[2]), float(line[3]), float(line[4]), float(line[5]), 0.0])
         else:
-            adjTable[line[1]] = [[line[0], float(line[2]), float(line[3]), float(line[4]), float(line[5])]]  # node1, node2, cost
+            adjTable[line[1]] = [[line[0], float(line[2]), float(line[3]), float(line[4]), float(line[5]), 0.0]]  # node1, node2, cost
     f.close()
 
     return adjTable
@@ -193,7 +193,10 @@ def cost_list(paths):
                 if j[4] == 1:
                     bridge += j[2]
 
+    # print(paths)
+    # print(length, " and ", n)
     cost_list = [length, area / length, bridge, build / n]
+    
     return cost_list
 
 
@@ -212,6 +215,7 @@ def inition(size, allPaths, shortPaths):
     
 # 轮盘赌
 def wheel_selection(population, costs):
+    # print("wheel")
     # print(population, '->', costs)
     length = len(population)
     selectPaths = list()
@@ -232,41 +236,74 @@ def wheel_selection(population, costs):
         for i in range(len(q)):
             if i == 0:
                 if 0 <= r <= q[i]:
-                    if not is_exist(selectPaths, population[i]):
-                        selectPaths.append(population[i])
-                        newCosts.append(costs[i])
+                    # if not is_exist(selectPaths, population[i]):
+                    #     selectPaths.append(population[i])
+                    #     newCosts.append(costs[i])
+                    selectPaths.append(population[i])
+                    newCosts.append(costs[i])
             else:
                 if q[i - 1] <= r <= q[i]:
-                    if not is_exist(selectPaths, population[i]):
-                        selectPaths.append(population[i])
-                        newCosts.append(costs[i])
+                    # if not is_exist(selectPaths, population[i]):
+                        # selectPaths.append(population[i])
+                        # newCosts.append(costs[i])
+                    selectPaths.append(population[i])
+                    newCosts.append(costs[i])
 
     return selectPaths, newCosts
 
 
 # 交叉
+# def crossover(paths):
+#     newPaths = list()
+#     parents = random.sample(paths, 2)
+#     for father in range(1, len(parents[0]) - 1):
+#         for mother in range(1, len(parents[1]) - 1):
+#             if parents[0][father] == parents[1][mother]:
+#                 child1 = parents[0][: father] + parents[1][mother:]
+#                 # print("c1", child1)
+#                 child1 = is_loop(child1)
+#                 if not is_exist(paths, child1):
+#                     newPaths.append(child1)
+#                 child2 = parents[1][: mother] + parents[0][father:]
+#                 # print("c2", child2)
+#                 child2 = is_loop(child2)
+#                 if not is_exist(paths, child1):
+#                     newPaths.append(child2)
+#                 return paths + newPaths
+#     return paths
+
+
+
 def crossover(paths):
-    newPaths = list()
-    parents = random.sample(paths, 2)
-    for father in range(1, len(parents[0]) - 1):
-        for mother in range(1, len(parents[1]) - 1):
-            if parents[0][father] == parents[1][mother]:
-                child1 = parents[0][: father] + parents[1][mother:]
-                # print("c1", child1)
-                child1 = is_loop(child1)
-                if not is_exist(paths, child1):
-                    newPaths.append(child1)
-                child2 = parents[1][: mother] + parents[0][father:]
-                # print("c2", child2)
-                child2 = is_loop(child2)
-                if not is_exist(paths, child1):
-                    newPaths.append(child2)
-                return paths + newPaths
-    return paths
+    # print("cross")
+    newPath = list()
+    copyPaths = paths
+    tempPaths = random.sample(paths, 10)
+    # print(len(paths))
+    for father in tempPaths:
+        length = len(father)
+        index = random.randint(1, length - 2)
+        crossPoint = father[index]
+        mother = random.sample(paths, 1)[0]
+        # print("f", father)
+        for mother in copyPaths:
+            # print("m", mother)
+            if mother != father and crossPoint in mother:
+                indexMo = mother.index(crossPoint)
+                childOne = father[0: index] + mother[indexMo: ]
+                childTwo = mother[0: indexMo] + father[index: ]
+                newPath.append(childOne)
+                newPath.append(childTwo)
+                break
+
+        random.shuffle(copyPaths)
+    return paths + newPath
+
 
 
 # 变异
 def mutation(paths, allPaths):
+    # print("mutation")
     path = random.sample(paths, 1)
     length = len(path[0])
     # print("length->", length)
@@ -292,6 +329,8 @@ def sharing(pathi, pathj):
 
 # 排序方法
 def pareto_ranking(paths):
+    # print("pareto")
+    # print(len(paths))
     resultList = list()
     fit = list()
     for path in paths:
@@ -333,7 +372,9 @@ def pareto_ranking(paths):
 # 寻找道路的函数
 def find_Road(start, end, gen):
     path = list()
-    allPaths, num, length, shortPaths = find_all_path(start, end, path)
+    # allPaths, num, length, shortPaths = find_all_path(start, end, path)
+    allPaths, num, length, shortPaths = find_all_path("24", "112", path)
+    print(len(allPaths))
     # total = len(allPaths)
     # print(shortPaths)
     if length <= 3:
@@ -355,10 +396,11 @@ def find_Road(start, end, gen):
     # result = list()
 
     for i in range(gen):
-        while len(Paths) < total:
-            newPath = random.choice(allPaths)
-            if newPath not in Paths:
-                Paths.append(newPath)
+        # print(Paths)
+        # while len(Paths) < total:
+        #     newPath = random.choice(allPaths)
+        #     if newPath not in Paths:
+        #         Paths.append(newPath)
 
         # print(Paths, Costs)
 
@@ -394,6 +436,7 @@ def find_Road(start, end, gen):
     print("number of nodes in shortest route:", length)
     print("number of all route:", num)
     print("**************results as follow**************")
+    print(Paths)
     # print(len(resultPaths))
     # print(resultPaths)
     
@@ -443,9 +486,10 @@ def find_Road(start, end, gen):
 if __name__ == "__main__":
     startTime = time.time()
     adjTable = read_txt()
+    # print(adjTable)
     creat_graph()
     # print(adjTable)
-    k = 2 # 避难所的数量
+    k = 1 # 避难所的数量
     gen = 100 # 世代
     endList = find_shelter(k, "1") # 避难所对应的点的序号
     print("shelter points:", endList)

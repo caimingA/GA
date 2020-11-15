@@ -1,20 +1,20 @@
 class Human:
     def __init__(self, name, speed, origin):
-        self.name = name
-        self.speed = speed
-        self.origin = origin
-        self.isCompute = 1
-        self.finish = 0
-        self.start = origin
-        self.end = origin
-        self.arrive = 0
-        self.time = 0
-        self.length = 0
-        self.output = 0
+        self.name = name # 避难者番号
+        self.speed = speed # 速度
+        self.origin = origin # 起点
+        self.isCompute = 1 # 是否要进行计算
+        self.finish = 0 # 是否完成了路线
+        self.start = origin # 开始的起点
+        self.end = origin # 终点
+        self.arrive = 0 # 是否完成道路？
+        self.time = 0 # 花费时间
+        self.length = 0 # ？
+        self.output = 0 # ？
 
-        self.history = list()
-        self.allPath = list()
-        self.path = list()
+        self.history = list() # 走过的点
+        self.allPath = list() # ？
+        self.path = list() # 接下来要走的道路
         self.allCosts = list()
         self.initPaths = list()
         self.costs = list()
@@ -46,11 +46,4 @@ class Human:
     def set_finish(self, finish):
         self.finish = finish
 
-
-class Road:
-    def __init__(self, begin, end, width, length):
-        self.begin = begin
-        self.end = end
-        self.width = width
-        self.length = length
 
