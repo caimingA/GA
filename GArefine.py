@@ -87,6 +87,7 @@ def drop_loop(path):
 def cost_list(paths, speed, mental_list):
     
     n = 0 # 节点数
+    time = 0
     length = 0 # 长度
     area = 0 # 面积
     bridge = 0 # 桥
@@ -96,21 +97,22 @@ def cost_list(paths, speed, mental_list):
         for j in adjTable[paths[i - 1]]: # 遍历所有与上一个节点相连接的节点
             if j[0] == paths[i]:
                 n += 1
+                time += j[2] / (speed*(j[5]**(-0.8)))
                 length += j[2]
-                # area += j[1] * j[2]
-                area += j[1]
+                area += j[1] / j[2]
+                # area += j[1]
                 build += j[3]
-                # congestion += j[5] * j[1] * j[2]
                 congestion += j[5]
+                # congestion += j[5]
                 if j[4] == 1:
                     bridge += j[2]
 
     # print(paths)
     # print(length, " and ", n)
     cost_list = [
-                  length / speed
+                  time
                 , length
-                , area / length
+                , area
                 , bridge
                 , build / area
                 , congestion / area
@@ -411,13 +413,13 @@ if __name__ == "__main__":
     start = "17"
     end = "203"
     # end = "17"
-    population = 120
+    population = 100
     minPopulation = 10
     gen = 100
     CRate = 0.7
     MRate = 0.02
-    sharing = 0
-    speed = 70
+    sharing = 1
+    speed = 1.34
     adjTable = read_txt()
     # print(adjTable)
     creat_graph()
